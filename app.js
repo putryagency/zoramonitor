@@ -53,7 +53,7 @@ function renderCreators(creators) {
       <h3>${name}</h3>
       <p>💰 Market Cap: $${parseFloat(c.marketCap || 0).toLocaleString()}</p>
       <div class="socials">${socialHTML || "<em>No social linked</em>"}</div>
-      <a href="https://t.me/based_eth_bot?start=r_Agusdarurat/${c.address}" target="_blank" class="trade-btn">🚀 Trade Now</a>
+      <a href="https://t.me/based_eth_bot?start=r_agusdarurat_b_${c.address}" target="_blank" class="trade-btn">🚀 Trade Now</a>
     `;
 
     container.appendChild(card);
