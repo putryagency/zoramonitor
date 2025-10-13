@@ -1,43 +1,64 @@
-export default async function handler(req, res) {
-  const ZORA_API = "https://api.zora.co/universal/graphql";
+const statusEl = document.getElementById("status");
+const container = document.getElementById("creators");
 
-  // Format universal body HARUS JSON string dengan hash & variables
-  const body = {
-    hash: "c2b3a1f16014905782a54053dc5a0aa4", // ini hash query resmi Zora Explore
-    variables: {
-      first: 12,
-      listType: "NEW_CREATORS",
-    },
-    operationName: "TabsQueriesProvider_ExploreQuery",
-  };
-
+async function fetchCreators() {
   try {
-    const response = await fetch(ZORA_API, {
-      method: "POST",
-      headers: {
-        accept: "application/json",
-        "content-type": "application/json",
-      },
-      body: JSON.stringify(body),
-    });
+    statusEl.textContent = "🔄 Updating...";
+    const res = await fetch("/api/new-creators", { cache: "no-store" });
+    const json = await res.json();
 
-    const text = await response.text();
-
-    // Coba parse JSON
-    try {
-      const data = JSON.parse(text);
-      if (data.errors) {
-        console.error("Zora GraphQL error:", data.errors);
-        return res.status(400).json({ error: data.errors });
-      }
-      res.setHeader("Cache-Control", "no-store");
-      res.status(200).json(data);
-    } catch {
-      console.error("Non-JSON response:", text);
-      return res.status(400).send(text);
-    }
-  } catch (error) {
-    console.error("Fetch failed:", error);
-    res.status(500).json({ error: error.message });
+    const creators = json?.data?.exploreList?.edges?.map(e => e.node) || [];
+    renderCreators(creators);
+    statusEl.textContent = `✅ Last update: ${new Date().toLocaleTimeString()}`;
+  } catch (err) {
+    statusEl.textContent = `❌ Error: ${err.message}`;
   }
 }
+
+function renderCreators(creators) {
+  container.innerHTML = "";
+
+  creators.forEach(c => {
+    const img =
+      c.mediaContent?.downloadableUri ||
+      c.creatorProfile?.avatar?.downloadableUri ||
+      "https://placehold.co/200x200?text=No+Image";
+
+    const profile = c.creatorProfile || {};
+    const name = profile.displayName || profile.handle || "Unknown";
+    const socials = profile.socialAccounts || {};
+
+    // Build social links
+    const socialHTML = [
+      socials.twitter
+        ? `<a href="https://twitter.com/${socials.twitter.username}" target="_blank">🐦 ${socials.twitter.username} (${socials.twitter.followerCount} followers)</a>`
+        : "",
+      socials.tiktok
+        ? `<a href="https://www.tiktok.com/@${socials.tiktok.username}" target="_blank">🎵 ${socials.tiktok.username}</a>`
+        : "",
+      socials.instagram
+        ? `<a href="https://instagram.com/${socials.instagram.username}" target="_blank">📸 ${socials.instagram.username}</a>`
+        : "",
+      socials.farcaster
+        ? `<a href="https://warpcast.com/${socials.farcaster.username}" target="_blank">🪩 ${socials.farcaster.username}</a>`
+        : "",
+    ]
+      .filter(Boolean)
+      .join("<br>");
+
+    const card = document.createElement("div");
+    card.className = "creator-card";
+    card.innerHTML = `
+      <img src="${img}" class="avatar" />
+      <h3>${name}</h3>
+      <p>💰 Market Cap: $${parseFloat(c.marketCap || 0).toLocaleString()}</p>
+      <div class="socials">${socialHTML || "<em>No social linked</em>"}</div>
+      <a href="https://basedbot.io/trade/${c.address}" target="_blank" class="trade-btn">🚀 Trade Now</a>
+    `;
+
+    container.appendChild(card);
+  });
+}
+
+setInterval(fetchCreators, 2000);
+fetchCreators();
