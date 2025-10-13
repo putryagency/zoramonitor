@@ -37,10 +37,10 @@ h1 {
   font-size: 12px;
 }
 
-/* ===== Grid Container ===== */
+/* ===== Grid Container (10 per baris) ===== */
 #creators {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  grid-template-columns: repeat(10, 1fr); /* 10 kotak per baris */
   gap: 14px;
   padding: 20px;
   justify-items: center;
@@ -133,4 +133,23 @@ footer {
   opacity: 0.6;
   padding: 10px;
   border-top: 1px solid #00ff9d22;
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 1400px) {
+  #creators {
+    grid-template-columns: repeat(8, 1fr);
+  }
+}
+
+@media (max-width: 1000px) {
+  #creators {
+    grid-template-columns: repeat(5, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  #creators {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
