@@ -5,7 +5,7 @@ export default async function handler(req, res) {
   const body = {
     hash: "c2b3a1f16014905782a54053dc5a0aa4", // ini hash query resmi Zora Explore
     variables: {
-      first: 12,
+      first: 22,
       listType: "NEW_CREATORS",
     },
     operationName: "TabsQueriesProvider_ExploreQuery",
