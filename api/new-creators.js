@@ -1,40 +1,54 @@
 export default async function handler(req, res) {
-  // Matikan cache di semua level
-  res.setHeader("Cache-Control", "no-store, max-age=0");
+  const ZORA_API = "https://api.zora.co/universal/graphql";
+
+  const query = `
+  {
+    exploreList(listType: NEW_CREATORS, limit: 12) {
+      edges {
+        node {
+          ... on GraphQLZora20CreatorToken {
+            address
+            marketCap
+            createdAt
+            mediaContent {
+              ... on GraphQLMediaImage {
+                downloadableUri
+              }
+            }
+            creatorProfile {
+              handle
+              displayName
+              socialAccounts {
+                twitter {
+                  username
+                  followerCount
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }`;
 
   try {
-    const response = await fetch("https://api.zora.co/universal/graphql", {
+    const response = await fetch(ZORA_API, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": process.env.ZORA_API_KEY, // taruh di Vercel ENV
       },
-      body: JSON.stringify({
-        hash: "c2b3a1f16014905782a54053dc5a0aa4",
-        variables: { first: 5, listType: "NEW_CREATORS" },
-        operationName: "TabsQueriesProvider_ExploreQuery",
-      }),
+      body: JSON.stringify({ query }),
     });
 
     if (!response.ok) {
-      const text = await response.text();
-      console.error("Zora API error:", text);
-      return res.status(response.status).json({ error: "Zora API failed", details: text });
+      const errorText = await response.text();
+      return res.status(response.status).send(errorText);
     }
 
-    const json = await response.json();
-
-    const creators = json?.data?.list?.nodes?.map(c => ({
-      name: c?.creator?.name || "Unknown",
-      username: c?.creator?.username || "anon",
-      avatar: c?.creator?.profileImage?.url || "/default.png",
-      followers: c?.creator?.followersCount || 0,
-      tradeLink: `https://basedbot.io/trade/${c?.creator?.address || ""}`,
-    })) || [];
-
-    res.status(200).json(creators);
+    const data = await response.json();
+    res.setHeader("Cache-Control", "no-store");
+    res.status(200).json(data);
   } catch (err) {
-    console.error("Server error:", err);
-    res.status(500).json({ error: "Server error", message: err.message });
+    res.status(500).json({ error: err.message });
   }
 }
