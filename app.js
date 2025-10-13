@@ -17,23 +17,45 @@ async function fetchCreators() {
 
 function renderCreators(creators) {
   container.innerHTML = "";
+
   creators.forEach(c => {
-    const img = c.mediaContent?.downloadableUri || "https://placehold.co/200";
-    const display = c.creatorProfile?.displayName || c.creatorProfile?.handle || "Unknown";
-    const twitter = c.creatorProfile?.socialAccounts?.twitter;
-    const twText = twitter
-      ? `@${twitter.username} (${twitter.followerCount} followers)`
-      : "No Twitter linked";
+    const img =
+      c.mediaContent?.downloadableUri ||
+      c.creatorProfile?.avatar?.downloadableUri ||
+      "https://placehold.co/200x200?text=No+Image";
+
+    const profile = c.creatorProfile || {};
+    const name = profile.displayName || profile.handle || "Unknown";
+    const socials = profile.socialAccounts || {};
+
+    // Build social links
+    const socialHTML = [
+      socials.twitter
+        ? `<a href="https://twitter.com/${socials.twitter.username}" target="_blank">🐦 ${socials.twitter.username} (${socials.twitter.followerCount} followers)</a>`
+        : "",
+      socials.tiktok
+        ? `<a href="https://www.tiktok.com/@${socials.tiktok.username}" target="_blank">🎵 ${socials.tiktok.username}</a>`
+        : "",
+      socials.instagram
+        ? `<a href="https://instagram.com/${socials.instagram.username}" target="_blank">📸 ${socials.instagram.username}</a>`
+        : "",
+      socials.farcaster
+        ? `<a href="https://warpcast.com/${socials.farcaster.username}" target="_blank">🪩 ${socials.farcaster.username}</a>`
+        : "",
+    ]
+      .filter(Boolean)
+      .join("<br>");
 
     const card = document.createElement("div");
     card.className = "creator-card";
     card.innerHTML = `
       <img src="${img}" class="avatar" />
-      <h3>${display}</h3>
-      <p>${twText}</p>
+      <h3>${name}</h3>
       <p>💰 Market Cap: $${parseFloat(c.marketCap || 0).toLocaleString()}</p>
-      <a href="https://basedbot.io/trade/${c.address}" target="_blank" class="trade-btn">Trade Now</a>
+      <div class="socials">${socialHTML || "<em>No social linked</em>"}</div>
+      <a href="https://basedbot.io/trade/${c.address}" target="_blank" class="trade-btn">🚀 Trade Now</a>
     `;
+
     container.appendChild(card);
   });
 }
