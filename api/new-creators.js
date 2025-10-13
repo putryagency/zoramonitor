@@ -1,41 +1,11 @@
 export default async function handler(req, res) {
   const ZORA_API = "https://api.zora.co/universal/graphql";
 
-  // Query dari explorer (listType: NEW_CREATORS)
+  // Format universal body HARUS JSON string dengan hash & variables
   const body = {
-    query: `
-      query TabsQueriesProvider_ExploreQuery($first: Int, $listType: ExploreListType!) {
-        exploreList(first: $first, listType: $listType) {
-          edges {
-            node {
-              __typename
-              ... on GraphQLZora20CreatorToken {
-                address
-                createdAt
-                marketCap
-                mediaContent {
-                  ... on GraphQLMediaImage {
-                    downloadableUri
-                  }
-                }
-                creatorProfile {
-                  displayName
-                  handle
-                  socialAccounts {
-                    twitter {
-                      username
-                      followerCount
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    `,
+    hash: "c2b3a1f16014905782a54053dc5a0aa4", // ini hash query resmi Zora Explore
     variables: {
-      first: 10,
+      first: 12,
       listType: "NEW_CREATORS",
     },
     operationName: "TabsQueriesProvider_ExploreQuery",
@@ -45,13 +15,15 @@ export default async function handler(req, res) {
     const response = await fetch(ZORA_API, {
       method: "POST",
       headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
+        accept: "application/json",
+        "content-type": "application/json",
       },
       body: JSON.stringify(body),
     });
 
     const text = await response.text();
+
+    // Coba parse JSON
     try {
       const data = JSON.parse(text);
       if (data.errors) {
@@ -59,14 +31,13 @@ export default async function handler(req, res) {
         return res.status(400).json({ error: data.errors });
       }
       res.setHeader("Cache-Control", "no-store");
-      return res.status(200).json(data);
+      res.status(200).json(data);
     } catch {
-      // Jika response bukan JSON valid
       console.error("Non-JSON response:", text);
       return res.status(400).send(text);
     }
   } catch (error) {
-    console.error("Fetch error:", error);
+    console.error("Fetch failed:", error);
     res.status(500).json({ error: error.message });
   }
 }
