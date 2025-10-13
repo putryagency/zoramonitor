@@ -1,0 +1,66 @@
+body {
+  background: #000;
+  color: #00ffcc;
+  font-family: 'Courier New', monospace;
+  margin: 0;
+  padding: 0;
+}
+
+#app {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.logo {
+  width: 60px;
+  height: 60px;
+  image-rendering: pixelated;
+}
+
+.subtitle {
+  color: #888;
+}
+
+#status {
+  text-align: center;
+  margin: 10px 0;
+  font-size: 14px;
+}
+
+.creator {
+  background: rgba(0,255,204,0.1);
+  border: 1px solid #00ffcc;
+  padding: 10px;
+  margin: 10px 0;
+  border-radius: 8px;
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+.creator img {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  vertical-align: middle;
+  margin-right: 10px;
+}
+
+.creator button {
+  background: #00ffcc;
+  color: #000;
+  border: none;
+  padding: 6px 12px;
+  cursor: pointer;
+  font-family: inherit;
+  border-radius: 6px;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
