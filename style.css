@@ -57,6 +57,12 @@ h1 {
   transition: all 0.25s ease-in-out;
   overflow: hidden;
   position: relative;
+
+  /* Biar tombol rata bawah */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 240px; /* tinggi tetap agar rapi */
 }
 
 .creator-card:hover {
@@ -111,7 +117,7 @@ h1 {
 /* ===== Button ===== */
 .trade-btn {
   display: inline-block;
-  margin-top: 5px;
+  margin-top: auto; /* dorong ke bawah */
   padding: 5px 10px;
   background: #00ff9d;
   color: #000;
@@ -120,6 +126,7 @@ h1 {
   font-weight: bold;
   text-decoration: none;
   transition: all 0.3s ease;
+  align-self: center; /* center horizontal */
 }
 
 .trade-btn:hover {
